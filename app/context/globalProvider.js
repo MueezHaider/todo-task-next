@@ -1,4 +1,3 @@
-"use client";
 import React, { createContext, useState, useContext } from "react";
 import themes from "./themes";
 import axios from "axios";
@@ -15,7 +14,6 @@ export const GlobalProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [modal, setModal] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
-
   const [tasks, setTasks] = useState([]);
 
   const theme = themes[selectedTheme];
@@ -44,7 +42,6 @@ export const GlobalProvider = ({ children }) => {
       });
 
       setTasks(sorted);
-
       setIsLoading(false);
     } catch (error) {
       console.log(error);
@@ -55,8 +52,20 @@ export const GlobalProvider = ({ children }) => {
     try {
       const res = await axios.delete(`/api/tasks/${id}`);
       toast.success("Task deleted");
-
       allTasks();
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    }
+  };
+
+  const updateCompleteTask = async (task) => {
+    try {
+      const res = await axios.put(`/api/tasks/${task.id}`, task);
+      toast.success("Task details updated");
+
+      const updatedTasks = tasks.map((t) => (t.id === task.id ? task : t));
+      setTasks(updatedTasks);
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong");
@@ -66,9 +75,7 @@ export const GlobalProvider = ({ children }) => {
   const updateTask = async (task) => {
     try {
       const res = await axios.put(`/api/tasks`, task);
-
       toast.success("Task updated");
-
       allTasks();
     } catch (error) {
       console.log(error);
@@ -101,6 +108,7 @@ export const GlobalProvider = ({ children }) => {
         allTasks,
         collapsed,
         collapseMenu,
+        updateCompleteTask,
       }}
     >
       <GlobalUpdateContext.Provider value={{}}>

@@ -31,15 +31,15 @@ export async function POST(req: Request) {
         title,
         description,
         date,
-        isCompleted: completed,
-        isImportant: important,
+        isCompleted: completed ?? false,
+        isImportant: important ?? false,
         userId,
       },
     });
 
     return NextResponse.json(task);
   } catch (error) {
-    console.log("ERROR CREATING TASK: ", error);
+    console.error("ERROR CREATING TASK: ", error);
     return NextResponse.json({ error: "Error creating task", status: 500 });
   }
 }
@@ -60,8 +60,8 @@ export async function GET(req: Request) {
 
     return NextResponse.json(tasks);
   } catch (error) {
-    console.log("ERROR GETTING TASKS: ", error);
-    return NextResponse.json({ error: "Error updating task", status: 500 });
+    console.error("ERROR GETTING TASKS: ", error);
+    return NextResponse.json({ error: "Error getting tasks", status: 500 });
   }
 }
 
@@ -79,13 +79,13 @@ export async function PUT(req: Request) {
         id,
       },
       data: {
-        isCompleted,
+        isCompleted: isCompleted ?? false,
       },
     });
 
     return NextResponse.json(task);
   } catch (error) {
-    console.log("ERROR UPDATING TASK: ", error);
-    return NextResponse.json({ error: "Error deleting task", status: 500 });
+    console.error("ERROR UPDATING TASK: ", error);
+    return NextResponse.json({ error: "Error updating task", status: 500 });
   }
 }

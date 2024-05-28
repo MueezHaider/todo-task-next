@@ -1,9 +1,9 @@
-"use client";
-import { useGlobalState } from "@/app/context/globalProvider";
-import { edit, trash } from "@/app/utils/Icons";
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import formatDate from "@/app/utils/formatDate";
+import { useGlobalState } from "@/app/context/globalProvider";
+import EditTaskModal from "../Modals/EditTaskModal";
+import { edit, trash } from "@/app/utils/Icons";
 
 interface Props {
   title: string;
@@ -13,56 +13,62 @@ interface Props {
   id: string;
 }
 
-function TaskItem({ title, description, date, isCompleted, id }: Props) {
+const TaskItem: React.FC<Props> = ({ title, description, date, isCompleted, id }) => {
   const { theme, deleteTask, updateTask } = useGlobalState();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const task = { id, title, description, date, isCompleted };
+
   return (
-    <TaskItemStyled theme={theme}>
-      <h1>{title}</h1>
-      <p>{description}</p>
-      <p className="date">{formatDate(date)}</p>
-      <div className="task-footer">
-        {isCompleted ? (
+    <>
+      <TaskItemStyled theme={theme}>
+        <h1>{title}</h1>
+        <p>{description}</p>
+        <p className="date">{formatDate(date)}</p>
+        <div className="task-footer">
+          {isCompleted ? (
+            <button
+              className="completed"
+              onClick={() => {
+                updateTask({ ...task, isCompleted: !isCompleted });
+              }}
+            >
+              Completed
+            </button>
+          ) : (
+            <button
+              className="incomplete"
+              onClick={() => {
+                updateTask({ ...task, isCompleted: !isCompleted });
+              }}
+            >
+              Incomplete
+            </button>
+          )}
+          <button className="edit" onClick={() => setIsModalOpen(true)}>
+            {edit}
+          </button>
           <button
-            className="completed"
+            className="delete"
             onClick={() => {
-              const task = {
-                id,
-                isCompleted: !isCompleted,
-              };
-
-              updateTask(task);
+              deleteTask(id);
             }}
           >
-            Completed
+            {trash}
           </button>
-        ) : (
-          <button
-            className="incomplete"
-            onClick={() => {
-              const task = {
-                id,
-                isCompleted: !isCompleted,
-              };
-
-              updateTask(task);
-            }}
-          >
-            Incomplete
-          </button>
-        )}
-        <button className="edit">{edit}</button>
-        <button
-          className="delete"
-          onClick={() => {
-            deleteTask(id);
-          }}
-        >
-          {trash}
-        </button>
-      </div>
-    </TaskItemStyled>
+        </div>
+      </TaskItemStyled>
+      {isModalOpen && (
+        <EditTaskModal
+        user_id={id}
+          task={task}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
+    </>
   );
-}
+};
 
 const TaskItemStyled = styled.div`
   padding: 1.2rem 1rem;

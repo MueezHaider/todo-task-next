@@ -26,3 +26,31 @@ export async function DELETE(
     return NextResponse.json({ error: "Error deleting task", status: 500 });
   }
 }
+
+export async function PUT(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { userId } = auth();
+    const { id } = params;
+
+    if (!userId) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    const data = await req.json();
+
+    const updatedTask = await prisma.task.update({
+      where: {
+        id,
+      },
+      data,
+    });
+
+    return NextResponse.json(updatedTask);
+  } catch (error) {
+    console.log("ERROR UPDATING TASK: ", error);
+    return NextResponse.json({ error: "Error updating task", status: 500 });
+  }
+}
